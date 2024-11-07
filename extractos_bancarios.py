@@ -34,7 +34,28 @@ def download_fx_rates():
 def unzip_fx_rates():
     with zipfile.ZipFile("fx/eur_rates.zip", "r") as zip_ref:
         zip_ref.extractall("fx")
+        
 
+def add_weekend_rates(fx):
+    """
+    Add the weekend rates to the fx dataframe
+    :param fx: dataframe with the fx rates
+    :return: dataframe with the fx rates and the weekend rates
+    """
+
+    fx["Date"] = pd.to_datetime(fx["Date"])
+    # Create a DatetimeIndex with all dates in the range
+    start_date = fx['Date'].min()
+    end_date = fx['Date'].max()
+    all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
+    df_all = pd.DataFrame(all_dates, columns=['Date'])
+
+    fx = pd.merge(df_all, fx, on='Date', how='left')
+
+    # Forward fill the missing values
+    fx['day'] = fx['Date'].dt.strftime('%d %b %Y')
+    fx['USD'] = fx['USD'].ffill()
+    return fx
 
 # when is the last time the rates were updated?
 # read the csv file
@@ -58,6 +79,7 @@ max_processed_date_revolut = revolut_processed['Date started (UTC)'].max()
 
 # ultimos extractos de revolut:
 revolut_files = glob.glob('./ultimos_extractos/transaction-statement*.csv') 
+print(revolut_files)
 revolut = pd.read_csv(revolut_files[0])
 revolut['Date started (UTC)'] = pd.to_datetime(revolut['Date started (UTC)'])
 max_last_date_revolut = revolut['Date started (UTC)'].max()
@@ -87,6 +109,7 @@ if max_last_date_revolut > max_processed_date_revolut:
     # let's add EUR conversion to the csv
     # read the csv file
     fx = pd.read_csv("fx/eurofxref-hist.csv")
+    fx = add_weekend_rates(fx)
     # Convert 'Date started (UTC)' to datetime if it's not already
     merged['Date started (UTC)'] = pd.to_datetime(merged['Date started (UTC)'])
 

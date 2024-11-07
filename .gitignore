@@ -1,3 +1,9 @@
+# everything in directories ./extractos_procesados and ./ultimos_extractos
+# and ./fx at all levels of depth
+./extractos_procesados/**
+./ultimos_extractos/**
+./fx/**
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
