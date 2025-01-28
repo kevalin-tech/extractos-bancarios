@@ -129,9 +129,9 @@ if max_last_date_revolut > max_processed_date_revolut:
     # Sort the dataframe back to its original order
     merged = merged.sort_values('Date started (UTC)', ascending=False)
     merged['EUR_amount'] = merged.apply(lambda row: round(row['Amount'] / row['EUR_USD_Rate'], 2) \
-        if row['Payment currency'] == 'USD' else round(row['Amount'] * row['EUR_USD_Rate'], 2), axis=1)
+        if row['Payment currency'] == 'USD' else round(row['Amount'], 2), axis=1)
     merged['EUR_fee'] = merged.apply(lambda row: round(row['Fee'] / row['EUR_USD_Rate'], 2) 
-                                         if row['Fee currency'] == 'USD' else row['Fee'], axis=1)
+                                         if row['Fee currency'] == 'USD' else round(row['Fee'], 2), axis=1)
     # Convert 'Date started (UTC)' back to string format
     merged['Date started (UTC)'] = merged['Date started (UTC)'].dt.strftime('%Y-%m-%d')
 
